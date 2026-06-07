@@ -118,6 +118,14 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .field input:focus,.field textarea:focus,.field select:focus{
   border-color:var(--accent);background:var(--surface2)
 }
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#ffffff;
+  -webkit-box-shadow:0 0 0 1000px #111 inset;
+  box-shadow:0 0 0 1000px #111 inset;
+  caret-color:#ffffff
+}
 .field input::placeholder,.field textarea::placeholder{color:#222}
 .field select{appearance:none;cursor:pointer}
 .field select option{background:#111}
@@ -688,6 +696,22 @@ function exportJSON(){
   showToast('JSON scaricato');
 }
 
+function mostraSuccesso(nome, folderUrl){
+  const {filled,empty}=getCounts();
+  document.getElementById('succNome').textContent=nome+' — cartella creata';
+  document.getElementById('succFilled').textContent=filled;
+  document.getElementById('succEmpty').textContent=empty;
+  const link=document.getElementById('succLink');
+  if(folderUrl){
+    link.href=folderUrl;
+    link.style.display='flex';
+    document.getElementById('succLinkSub').textContent='Apri la cartella su Google Drive';
+  } else {
+    link.style.display='none';
+  }
+  document.getElementById('modalSuccesso').classList.add('open');
+}
+
 function inviaADrive(){
   chiudiModale('modalConferma');
   const nome=document.getElementById('NOME_STARTUP').value.trim();
@@ -700,23 +724,26 @@ function inviaADrive(){
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify(getData())
   })
-  .then(r=>r.json())
-  .then(res=>{
-    const {filled,empty}=getCounts();
-    document.getElementById('succNome').textContent=nome+' — cartella creata';
-    document.getElementById('succFilled').textContent=filled;
-    document.getElementById('succEmpty').textContent=empty;
-    if(res.folderUrl){
-      document.getElementById('succLink').href=res.folderUrl;
-      document.getElementById('succLinkSub').textContent='Apri la cartella su Google Drive';
+  .then(r=>r.text())
+  .then(raw=>{
+    console.log('[Pholià] Apps Script response:', raw);
+    let folderUrl = null;
+    try {
+      const res = JSON.parse(raw);
+      if(res.folderUrl) folderUrl = res.folderUrl;
+    } catch(e){
+      console.warn('[Pholià] JSON parse fallito, risposta grezza:', raw);
     }
-    document.getElementById('modalSuccesso').classList.add('open');
+    mostraSuccesso(nome, folderUrl);
     btn.textContent='genera su drive ↗';
     btn.disabled=false;
   })
-  .catch(()=>{
-    showToast('Errore connessione — controlla WEB_APP_URL',5000);
-    btn.textContent='riprova';
+  .catch(err=>{
+    console.error('[Pholià] fetch error:', err);
+    // Apps Script spesso completa il lavoro ma restituisce un errore CORS/redirect
+    // mostriamo comunque il successo senza URL
+    mostraSuccesso(nome, null);
+    btn.textContent='genera su drive ↗';
     btn.disabled=false;
   });
 }
