@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pholià — Startup Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;
+  --surface:#111;
+  --surface2:#161616;
+  --border:#1e1e1e;
+  --border2:#2a2a2a;
+  --text:#ffffff;
+  --muted:#555;
+  --muted2:#888;
+  --accent:#00d4ff;
+  --accent-hover:#00bde8;
+  --radius:5px;
+  --sidebar-w:220px;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* ── HEADER ── */
+.header{
+  height:52px;padding:0 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg);position:fixed;top:0;left:0;right:0;z-index:200
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.burger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:4px}
+.burger span{display:block;width:18px;height:1.5px;background:var(--muted2);transition:all .2s}
+.logo-box{
+  width:28px;height:28px;border:1.5px solid var(--accent);
+  border-radius:4px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0
+}
+.logo-box span{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);font-weight:500}
+.logo-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);letter-spacing:.1em}
+.logo-label b{color:var(--text);font-weight:500}
+.header-right{display:flex;align-items:center;gap:8px}
+.progress-wrap{display:flex;align-items:center;gap:8px}
+.progress-bar{width:120px;height:2px;background:var(--border2)}
+.progress-fill{height:100%;background:var(--accent);width:0%;transition:width .3s}
+.progress-pct{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);min-width:28px}
+.btn-json{
+  padding:6px 14px;border-radius:var(--radius);font-size:10px;
+  font-family:'DM Mono',monospace;cursor:pointer;border:1px solid var(--border2);
+  background:transparent;color:var(--muted2);letter-spacing:.05em;transition:all .15s
+}
+.btn-json:hover{color:var(--text);border-color:var(--border)}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:calc(100vh - 52px);margin-top:52px}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  border-right:1px solid var(--border);
+  padding:16px 0;overflow-y:auto;
+  background:var(--bg);
+  transition:transform .25s ease
+}
+.sidebar-section{
+  padding:6px 16px 2px;
+  font-family:'DM Mono',monospace;font-size:9px;
+  color:var(--muted);letter-spacing:.12em;margin-top:8px
+}
+.nav-item{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 16px;font-size:11px;
+  font-family:'DM Mono',monospace;color:var(--muted);
+  cursor:pointer;border-left:2px solid transparent;
+  transition:all .12s;user-select:none
+}
+.nav-item:hover{color:var(--muted2);background:var(--surface)}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:var(--surface)}
+.nav-item.done{color:#333}
+.nav-item.done .dot{background:var(--accent);border-color:var(--accent)}
+.dot{
+  width:5px;height:5px;border-radius:50%;
+  border:1px solid var(--border2);flex-shrink:0;transition:all .15s
+}
+.nav-item.active .dot{border-color:var(--accent)}
+.overlay{display:none;position:fixed;inset:0;z-index:149;background:rgba(0,0,0,.7)}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:32px 40px 80px}
+.section{display:none}
+.section.active{display:block;animation:fadeUp .18s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+.sec-eyebrow{
+  font-family:'DM Mono',monospace;font-size:9px;
+  color:var(--accent);letter-spacing:.15em;margin-bottom:6px
+}
+.sec-title{font-size:18px;font-weight:300;letter-spacing:-.02em;margin-bottom:4px}
+.sec-desc{font-size:12px;color:var(--muted);margin-bottom:24px;line-height:1.6;padding-bottom:16px;border-bottom:1px solid var(--border)}
+
+/* ── FIELDS ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{
+  font-size:9px;font-family:'DM Mono',monospace;
+  color:var(--muted2);letter-spacing:.08em
+}
+.field input,.field textarea,.field select{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  padding:8px 12px;outline:none;transition:border .12s;
+  width:100%;resize:vertical
+}
+.field input:focus,.field textarea:focus,.field select:focus{
+  border-color:var(--accent);background:var(--surface2)
+}
+.field input::placeholder,.field textarea::placeholder{color:#222}
+.field select{appearance:none;cursor:pointer}
+.field select option{background:#111}
+.field textarea{min-height:72px;line-height:1.6}
+.field-note{font-size:10px;color:#333;font-style:italic;margin-top:2px}
+
+.char-group{grid-column:1/-1}
+.char-group-label{
+  font-size:9px;font-family:'DM Mono',monospace;
+  color:var(--muted2);letter-spacing:.08em;
+  margin-bottom:8px;padding-bottom:5px;
+  border-bottom:1px solid var(--border)
+}
+.char-block{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius);overflow:hidden;margin-bottom:6px
+}
+.char-block-hdr{
+  padding:4px 12px;border-bottom:1px solid var(--border);
+  font-family:'DM Mono',monospace;font-size:9px;color:var(--accent)
+}
+.char-block textarea{
+  border:none!important;border-radius:0!important;
+  background:transparent!important;padding:8px 12px;
+  font-size:12px!important;min-height:56px;width:100%
+}
+.char-block textarea:focus{outline:none!important;border:none!important}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:var(--sidebar-w);right:0;
+  height:56px;background:var(--bg);border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;z-index:100;transition:left .25s
+}
+.btn{
+  padding:8px 20px;border-radius:var(--radius);font-size:10px;
+  font-family:'DM Mono',monospace;cursor:pointer;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--muted);letter-spacing:.06em;transition:all .12s
+}
+.btn:hover:not(:disabled){color:var(--text);border-color:var(--border)}
+.btn:disabled{opacity:.2;cursor:not-allowed}
+.btn-primary{
+  background:var(--accent);color:#000;
+  border-color:var(--accent);font-weight:500
+}
+.btn-primary:hover:not(:disabled){background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn-primary:disabled{background:#003a45;color:#005566;border-color:#003a45}
+.nav-center{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:72px;right:24px;
+  background:var(--surface);border:1px solid var(--border2);
+  border-left:2px solid var(--accent);
+  padding:12px 20px;border-radius:var(--radius);
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--text);
+  transform:translateY(20px);opacity:0;transition:all .25s;z-index:300
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  :root{--sidebar-w:0px}
+  .sidebar{
+    position:fixed;top:52px;left:0;bottom:0;
+    width:240px;z-index:150;
+    transform:translateX(-100%);
+    border-right:1px solid var(--border2)
+  }
+  .sidebar.open{transform:translateX(0)}
+  .overlay.open{display:block}
+  .burger{display:flex}
+  .progress-wrap{display:none}
+  .main{padding:24px 20px 80px}
+  .grid{grid-template-columns:1fr}
+  .full{grid-column:1}
+  .bottom-nav{left:0;padding:0 20px}
+  .btn-json{display:none}
+}
+@media(max-width:480px){
+  .main{padding:20px 16px 80px}
+  .sec-title{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="burger" onclick="toggleSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="logo-box"><span>PH</span></div>
+    <div class="logo-label"><b>PHOLIÀ</b> // PROFILE SHEET</div>
+  </div>
+  <div class="header-right">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="pFill"></div></div>
+      <div class="progress-pct" id="pPct">0%</div>
+    </div>
+    <button class="btn-json" onclick="exportJSON()">↓ JSON</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="app">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-section">SEZIONI</div>
+    <div class="nav-item active" id="nav-0" onclick="goTo(0)"><div class="dot"></div>01 Identità</div>
+    <div class="nav-item" id="nav-1" onclick="goTo(1)"><div class="dot"></div>02 Team</div>
+    <div class="nav-item" id="nav-2" onclick="goTo(2)"><div class="dot"></div>03 Posizionamento</div>
+    <div class="nav-item" id="nav-3" onclick="goTo(3)"><div class="dot"></div>04 Testi</div>
+    <div class="nav-item" id="nav-4" onclick="goTo(4)"><div class="dot"></div>05 Mercato</div>
+    <div class="nav-item" id="nav-5" onclick="goTo(5)"><div class="dot"></div>06 Finanziari</div>
+    <div class="nav-item" id="nav-6" onclick="goTo(6)"><div class="dot"></div>07 Tecnologia</div>
+    <div class="nav-item" id="nav-7" onclick="goTo(7)"><div class="dot"></div>08 ESG</div>
+    <div class="nav-item" id="nav-8" onclick="goTo(8)"><div class="dot"></div>09 Asset & Link</div>
+  </div>
+
+  <div class="main" id="main">
+
+    <!-- S1 -->
+    <div class="section active" id="s0">
+      <div class="sec-eyebrow">SEZIONE 01 / 09</div>
+      <div class="sec-title">Identità Aziendale</div>
+      <div class="sec-desc">Dati anagrafici e identificativi della startup.</div>
+      <div class="grid">
+        <div class="field"><label>NOME STARTUP *</label><input id="NOME_STARTUP" type="text" placeholder="Es. NexaMed"></div>
+        <div class="field"><label>NOME COMMERCIALE</label><input id="NOME_COMMERCIALE" type="text"></div>
+        <div class="field"><label>FORMA SOCIETARIA</label><select id="FORMA_SOCIETARIA"><option value="">—</option><option>S.r.l.</option><option>S.r.l.s.</option><option>S.p.A.</option><option>S.n.c.</option><option>S.a.s.</option><option>Altro</option></select></div>
+        <div class="field"><label>PAYOFF</label><input id="PAYOFF" type="text" placeholder="In meno di 10 parole"><div class="field-note">Sintesi estrema della startup</div></div>
+        <div class="field"><label>DATA AGGIORNAMENTO</label><input id="DATA_AGGIORNAMENTO" type="text" placeholder="GG/MM/AAAA"></div>
+        <div class="field"><label>DATA COSTITUZIONE</label><input id="DATA_COSTITUZIONE" type="text" placeholder="GG/MM/AAAA"></div>
+        <div class="field full"><label>SEDE LEGALE</label><input id="SEDE_LEGALE" type="text" placeholder="Via, numero, CAP, Città"></div>
+        <div class="field"><label>COMUNE (PROVINCIA)</label><input id="COMUNE_PROVINCIA" type="text" placeholder="Milano (MI)"></div>
+        <div class="field"><label>PARTITA IVA</label><input id="PARTITA_IVA" type="text"></div>
+        <div class="field"><label>CODICE FISCALE</label><input id="CODICE_FISCALE_STARTUP" type="text"></div>
+        <div class="field"><label>PEC AZIENDALE</label><input id="PEC_AZIENDALE" type="text"></div>
+        <div class="field"><label>IBAN AZIENDALE</label><input id="IBAN_AZIENDALE" type="text"></div>
+        <div class="field"><label>INTESTATARIO CONTO</label><input id="INTESTATARIO_CONTO" type="text"></div>
+        <div class="field"><label>SITO WEB</label><input id="SITO_WEB" type="text" placeholder="https://"></div>
+        <div class="field"><label>LINKEDIN COMPANY</label><input id="LINKEDIN_COMPANY" type="text" placeholder="https://"></div>
+        <div class="field"><label>ISCRIZIONE SEZ. SPECIALE</label><select id="ISCRIZIONE_SEZIONE_SPECIALE"><option value="">—</option><option>Sì</option><option>No</option><option>In corso</option></select></div>
+        <div class="field"><label>SCADENZA REGIME</label><input id="SCADENZA_REGIME_STARTUP" type="text" placeholder="GG/MM/AAAA"></div>
+        <div class="field"><label>SPIN-OFF DI</label><input id="SPIN_OFF_DI" type="text" placeholder="Lascia vuoto se non applicabile"></div>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="section" id="s1">
+      <div class="sec-eyebrow">SEZIONE 02 / 09</div>
+      <div class="sec-title">Team</div>
+      <div class="sec-desc">Founders e dirigenti chiave.</div>
+      <div class="grid">
+        <div class="field"><label>CEO — NOME E COGNOME *</label><input id="CEO_NOME_COGNOME" type="text"></div>
+        <div class="field"><label>EMAIL CEO</label><input id="CEO_EMAIL" type="text"></div>
+        <div class="field"><label>TELEFONO CEO</label><input id="CEO_TELEFONO" type="text"></div>
+        <div class="field"><label>LINKEDIN CEO</label><input id="CEO_LINKEDIN" type="text" placeholder="https://"></div>
+        <div class="field full"><label>ESPERIENZE CEO</label><textarea id="CEO_ESPERIENZE_BREVI" placeholder="Es: Ex medico di base, MBA Bocconi, 3 anni in digital health"></textarea></div>
+        <div class="field"><label>CO-FOUNDER 2 — NOME</label><input id="COFOUNDER_2_NOME" type="text"></div>
+        <div class="field"><label>CO-FOUNDER 2 — RUOLO</label><input id="COFOUNDER_2_RUOLO" type="text"></div>
+        <div class="field full"><label>CO-FOUNDER 2 — ESPERIENZE</label><textarea id="COFOUNDER_2_ESPERIENZE"></textarea></div>
+        <div class="field"><label>CO-FOUNDER 3 — NOME</label><input id="COFOUNDER_3_NOME" type="text"></div>
+        <div class="field"><label>CO-FOUNDER 3 — RUOLO</label><input id="COFOUNDER_3_RUOLO" type="text"></div>
+        <div class="field full"><label>CO-FOUNDER 3 — ESPERIENZE</label><textarea id="COFOUNDER_3_ESPERIENZE"></textarea></div>
+        <div class="field"><label>N° FOUNDERS</label><input id="NUM_FOUNDERS" type="text"></div>
+        <div class="field"><label>N° DIPENDENTI TOTALI</label><input id="NUM_DIPENDENTI" type="text"></div>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="section" id="s2">
+      <div class="sec-eyebrow">SEZIONE 03 / 09</div>
+      <div class="sec-title">Posizionamento</div>
+      <div class="sec-desc">Settore, stadio di sviluppo e modello di business.</div>
+      <div class="grid">
+        <div class="field"><label>SETTORE PRIMARIO</label><select id="SETTORE_PRIMARIO"><option value="">—</option><option>Agritech</option><option>Food & Beverage</option><option>Energia e Ambiente</option><option>Mobilità</option><option>Fintech</option><option>Insurtech</option><option>Legaltech & Regtech</option><option>Govtech</option><option>Marketing e Comunicazione</option><option>No-Code Platform</option><option>Data Governance & Analytics</option><option>IA - Artificial Intelligence</option><option>Quantum Computing</option><option>Blockchain & Web 3.0</option><option>VR / AR</option><option>Cybersecurity</option><option>HR & formazione</option><option>Welfare</option><option>Salute & Pharma</option><option>Proptech</option><option>Salestech</option><option>Retail & e-Commerce</option><option>Fashion</option><option>Design & Furniture</option><option>Automotive</option><option>Industria & Robotica</option><option>Nuovi materiali</option><option>Avio-Spacetech</option><option>Deeptech</option><option>Logistica</option><option>Gaming</option><option>Traveltech & Turismo</option><option>Social impact</option><option>Circular Economy</option><option>Consulting</option><option>Altro</option></select></div>
+        <div class="field"><label>SETTORE SECONDARIO</label><input id="SETTORE_SECONDARIO" type="text" placeholder="Opzionale"></div>
+        <div class="field"><label>LIVELLO DI SVILUPPO</label><select id="LIVELLO_SVILUPPO"><option value="">—</option><option>Idea</option><option>Prototipo</option><option>Go to Market / Primi clienti</option><option>Crescita rapida</option><option>Internazionalizzazione</option><option>Maturità</option></select></div>
+        <div class="field"><label>TRL ATTUALE</label><select id="TRL_LIVELLO"><option value="">—</option><option>TRL 1</option><option>TRL 2</option><option>TRL 3</option><option>TRL 4</option><option>TRL 5</option><option>TRL 6</option><option>TRL 7</option><option>TRL 8</option><option>TRL 9</option></select></div>
+        <div class="field"><label>MODELLO DI BUSINESS</label><select id="MODELLO_BUSINESS"><option value="">—</option><option>SaaS B2B</option><option>SaaS B2C</option><option>Marketplace</option><option>E-commerce</option><option>Hardware</option><option>Consulting</option><option>Licenza</option><option>Freemium</option><option>Transazionale</option><option>Altro</option></select></div>
+        <div class="field"><label>TARGET CLIENTE</label><input id="TARGET_CLIENTE" type="text"></div>
+        <div class="field full"><label>REVENUE MODEL (BREVE)</label><input id="REVENUE_MODEL_BREVE" type="text" placeholder="Es: Abbonamento mensile €149/mese per studio medico"></div>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="section" id="s3">
+      <div class="sec-eyebrow">SEZIONE 04 / 09</div>
+      <div class="sec-title">Testi Istituzionali</div>
+      <div class="sec-desc">Testi pre-approvati divisi per lunghezza. Verranno usati direttamente nei form dei bandi.</div>
+      <div class="grid">
+        <div class="field"><label>TAGLINE — 50 CAR.</label><input id="TAGLINE_50" type="text"><div class="field-note">Max 50 caratteri</div></div>
+        <div class="field"><label>TAGLINE — 150 CAR.</label><input id="TAGLINE_150" type="text"><div class="field-note">Max 150 caratteri</div></div>
+        <div class="char-group">
+          <div class="char-group-label">DESCRIZIONE DEL PROBLEMA</div>
+          <div class="char-block"><div class="char-block-hdr">500 CARATTERI</div><textarea id="PROBLEMA_500"></textarea></div>
+          <div class="char-block"><div class="char-block-hdr">1000 CARATTERI</div><textarea id="PROBLEMA_1000"></textarea></div>
+          <div class="char-block"><div class="char-block-hdr">2500 CARATTERI</div><textarea id="PROBLEMA_2500"></textarea></div>
+        </div>
+        <div class="char-group">
+          <div class="char-group-label">DESCRIZIONE DELLA SOLUZIONE</div>
+          <div class="char-block"><div class="char-block-hdr">500 CARATTERI</div><textarea id="SOLUZIONE_500"></textarea></div>
+          <div class="char-block"><div class="char-block-hdr">1000 CARATTERI</div><textarea id="SOLUZIONE_1000"></textarea></div>
+          <div class="char-block"><div class="char-block-hdr">2500 CARATTERI</div><textarea id="SOLUZIONE_2500"></textarea></div>
+        </div>
+        <div class="char-group">
+          <div class="char-group-label">INNOVAZIONE E COMPETITOR</div>
+          <div class="char-block"><div class="char-block-hdr">1000 CARATTERI</div><textarea id="INNOVAZIONE_1000"></textarea></div>
+          <div class="char-block"><div class="char-block-hdr">2000 CARATTERI</div><textarea id="INNOVAZIONE_2000"></textarea></div>
+        </div>
+        <div class="char-group">
+          <div class="char-group-label">UTILIZZO DEI FONDI</div>
+          <div class="char-block"><div class="char-block-hdr">500 CARATTERI</div><textarea id="USO_FONDI_500"></textarea></div>
+          <div class="char-block"><div class="char-block-hdr">1500 CARATTERI</div><textarea id="USO_FONDI_1500"></textarea></div>
+        </div>
+        <div class="field full"><label>RIPARTIZIONE FONDI %</label><input id="USO_FONDI_PERCENTUALI" type="text" placeholder="Es: 50% R&D, 30% Marketing, 20% Operations"></div>
+        <div class="field full"><label>GO TO INVESTOR</label><textarea id="GO_TO_INVESTOR"></textarea></div>
+        <div class="field full"><label>GO TO MARKET</label><textarea id="BP_GTM"></textarea></div>
+        <div class="field full"><label>MVA — MINIMUM VIABLE AUDIENCE</label><textarea id="BP_MVA"></textarea></div>
+        <div class="field full"><label>ROADMAP PRODOTTO</label><textarea id="BP_ROADMAP"></textarea></div>
+        <div class="field full"><label>CANALI ACQUISIZIONE</label><textarea id="GTM_CANALI"></textarea></div>
+        <div class="field full"><label>STRATEGIA GTM</label><textarea id="GTM_STRATEGIA"></textarea></div>
+        <div class="field"><label>PARTNERSHIP STRATEGICHE</label><input id="GTM_PARTNERSHIP" type="text"></div>
+        <div class="field"><label>COSTI ACQUISIZIONE STIMATI</label><input id="GTM_COSTI" type="text"></div>
+        <div class="field full"><label>FASI DI LANCIO</label><textarea id="GTM_FASI"></textarea></div>
+        <div class="field"><label>METRICHE DI SUCCESSO GTM</label><input id="GTM_METRICHE" type="text"></div>
+        <div class="field full"><label>MILESTONES POST-INVESTIMENTO</label><textarea id="GTI_MILESTONES"></textarea></div>
+        <div class="field full"><label>PROFILO INVESTITORE TARGET</label><textarea id="GTI_PROFILO_INVESTITORE"></textarea></div>
+        <div class="field full"><label>COSA OFFRIAMO</label><textarea id="GTI_COSA_OFFRIAMO"></textarea></div>
+        <div class="field full"><label>EXIT STRATEGY</label><textarea id="GTI_EXIT"></textarea></div>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="section" id="s4">
+      <div class="sec-eyebrow">SEZIONE 05 / 09</div>
+      <div class="sec-title">Mercato</div>
+      <div class="sec-desc">Dimensionamento del mercato e analisi competitiva.</div>
+      <div class="grid">
+        <div class="field"><label>TAM (€)</label><input id="TAM" type="text" placeholder="4200000000"></div>
+        <div class="field"><label>SAM (€)</label><input id="SAM" type="text" placeholder="420000000"></div>
+        <div class="field"><label>SOM (€)</label><input id="SOM" type="text" placeholder="12000000"></div>
+        <div class="field full"><label>DESCRIZIONE MERCATO TARGET</label><textarea id="MERCATO_TARGET_DESC"></textarea></div>
+        <div class="field full"><label>COMPETITOR PRINCIPALI</label><textarea id="COMPETITOR_PRINCIPALI"></textarea></div>
+        <div class="field full"><label>VANTAGGIO COMPETITIVO</label><textarea id="VANTAGGIO_COMPETITIVO"></textarea></div>
+        <div class="field full"><label>STATO DELL'ARTE</label><textarea id="DESCRIZIONE_STATO_ARTE"></textarea></div>
+        <div class="field full"><label>PERCHÉ ADESSO</label><textarea id="INNOVAZIONE_PERCHE_ADESSO"></textarea></div>
+      </div>
+    </div>
+
+    <!-- S6 -->
+    <div class="section" id="s5">
+      <div class="sec-eyebrow">SEZIONE 06 / 09</div>
+      <div class="sec-title">Finanziari & Traction</div>
+      <div class="sec-desc">Dati economici, metriche e traction commerciale. Inserire cifre precise in € senza abbreviazioni.</div>
+      <div class="grid">
+        <div class="field"><label>ANNO RIF. 1</label><input id="ANNO_RIF_1" type="text" placeholder="2023"></div>
+        <div class="field"><label>ANNO RIF. 2</label><input id="ANNO_RIF_2" type="text" placeholder="2024"></div>
+        <div class="field"><label>ANNO RIF. 3</label><input id="ANNO_RIF_3" type="text" placeholder="2025"></div>
+        <div class="field"><label>FATTURATO ANNO 1 (€)</label><input id="FATTURATO_ANNO_1" type="text"></div>
+        <div class="field"><label>FATTURATO ANNO 2 (€)</label><input id="FATTURATO_ANNO_2" type="text"></div>
+        <div class="field"><label>FATTURATO ANNO 3 (€)</label><input id="FATTURATO_ANNO_3" type="text"></div>
+        <div class="field"><label>VALORIZZAZIONE (€)</label><input id="VALORIZZAZIONE_ATTUALE" type="text"></div>
+        <div class="field"><label>METODO VALORIZZAZIONE</label><select id="METODO_VALORIZZAZIONE"><option value="">—</option><option>Scorecard Method</option><option>DCF</option><option>Berkus</option><option>Comparables</option><option>Altro</option></select></div>
+        <div class="field"><label>ROUND ATTUALE</label><select id="ROUND_ATTUALE"><option value="">—</option><option>Pre-seed</option><option>Seed</option><option>Serie A</option><option>Serie B</option><option>Growth</option><option>Altro</option></select></div>
+        <div class="field"><label>OBIETTIVO RACCOLTA (€)</label><input id="OBIETTIVO_RACCOLTA" type="text"></div>
+        <div class="field"><label>MRR (€)</label><input id="MRR" type="text"></div>
+        <div class="field"><label>ARR (€)</label><input id="ARR" type="text"></div>
+        <div class="field"><label>CAC (€)</label><input id="CAC" type="text"></div>
+        <div class="field"><label>LTV (€)</label><input id="LTV" type="text"></div>
+        <div class="field"><label>CHURN RATE</label><input id="CHURN_RATE" type="text" placeholder="Es: 2%"></div>
+        <div class="field"><label>DAU/MAU RATIO</label><input id="DAU_MAU" type="text" placeholder="Es: 68%"></div>
+        <div class="field"><label>NPS</label><input id="NPS" type="text"></div>
+        <div class="field full"><label>INVESTITORI PRINCIPALI</label><textarea id="INVESTITORI_PRINCIPALI"></textarea></div>
+        <div class="field full"><label>ALTRI DATI TRACTION</label><textarea id="ALTRI_DATI_TRACTION" placeholder="Clienti paganti, LoI firmate, demo attive, ecc."></textarea></div>
+        <div class="field"><label>CASE STUDY 1 — CLIENTE</label><input id="CS1_CLIENTE" type="text"></div>
+        <div class="field"><label>CS1 — SETTORE</label><input id="CS1_SETTORE" type="text"></div>
+        <div class="field"><label>CS1 — SFIDA</label><input id="CS1_SFIDA" type="text"></div>
+        <div class="field"><label>CS1 — SOLUZIONE</label><input id="CS1_SOLUZIONE" type="text"></div>
+        <div class="field"><label>CS1 — RISULTATI</label><input id="CS1_RISULTATI" type="text"></div>
+        <div class="field"><label>CS1 — CITAZIONE</label><input id="CS1_CITAZIONE" type="text"></div>
+        <div class="field"><label>CASE STUDY 2 — CLIENTE</label><input id="CS2_CLIENTE" type="text"></div>
+        <div class="field"><label>CS2 — SETTORE</label><input id="CS2_SETTORE" type="text"></div>
+        <div class="field"><label>CS2 — SFIDA</label><input id="CS2_SFIDA" type="text"></div>
+        <div class="field"><label>CS2 — SOLUZIONE</label><input id="CS2_SOLUZIONE" type="text"></div>
+        <div class="field"><label>CS2 — RISULTATI</label><input id="CS2_RISULTATI" type="text"></div>
+        <div class="field"><label>CS2 — CITAZIONE</label><input id="CS2_CITAZIONE" type="text"></div>
+        <div class="field full"><label>PREMI E RICONOSCIMENTI</label><textarea id="PREMI_RICONOSCIMENTI"></textarea></div>
+        <div class="field full"><label>PARTNER PRINCIPALI</label><input id="PARTNER_PRINCIPALI" type="text"></div>
+      </div>
+    </div>
+
+    <!-- S7 -->
+    <div class="section" id="s6">
+      <div class="sec-eyebrow">SEZIONE 07 / 09</div>
+      <div class="sec-title">Tecnologia & IP</div>
+      <div class="sec-desc">Stack tecnologico, architettura e proprietà intellettuale.</div>
+      <div class="grid">
+        <div class="field full"><label>TECH STACK</label><input id="TECH_STACK" type="text" placeholder="Es: Python, FastAPI, React, PostgreSQL, AWS"></div>
+        <div class="field full"><label>ARCHITETTURA CLOUD</label><input id="ARCHITETTURA_CLOUD" type="text"></div>
+        <div class="field"><label>LOCALIZZAZIONE SERVER</label><input id="LOCALIZZAZIONE_SERVER" type="text" placeholder="Es: Germania (EU)"></div>
+        <div class="field"><label>CRITTOGRAFIA</label><input id="PROTOCOLLI_CRITTOGRAFIA" type="text" placeholder="Es: AES-256, TLS 1.3"></div>
+        <div class="field full"><label>BREVETTI</label><textarea id="IP_BREVETTI"></textarea></div>
+        <div class="field"><label>MARCHI REGISTRATI</label><input id="IP_MARCHI" type="text"></div>
+        <div class="field"><label>ALTRE TUTELE IP</label><input id="IP_ALTRE_TUTELE" type="text"></div>
+        <div class="field full"><label>NDA POLICY</label><textarea id="IP_NDA_POLICY"></textarea></div>
+        <div class="field full"><label>IP ASSIGNMENT</label><textarea id="IP_ASSIGNMENT_DESC"></textarea></div>
+        <div class="field full"><label>STRATEGIA IP FUTURA</label><textarea id="IP_STRATEGIA_FUTURA"></textarea></div>
+        <div class="field full"><label>TRL — STATO ATTUALE</label><textarea id="TRL_DESCRIZIONE_STATO"></textarea></div>
+        <div class="field full"><label>TRL — EVIDENZE</label><textarea id="TRL_EVIDENZE"></textarea></div>
+        <div class="field full"><label>TRL — ATTIVITÀ COMPLETATE</label><textarea id="TRL_ATTIVITA_COMPLETATE"></textarea></div>
+        <div class="field full"><label>TRL — PROSSIMI STEP</label><textarea id="TRL_PROSSIMI_STEP"></textarea></div>
+        <div class="field"><label>POC DISPONIBILE</label><select id="TRL_POC_DISPONIBILE"><option value="">—</option><option>Sì</option><option>No</option><option>In sviluppo</option></select></div>
+        <div class="field"><label>RISULTATI TEST</label><input id="TRL_RISULTATI_TEST" type="text"></div>
+        <div class="field full"><label>LINK ARCHITETTURA</label><input id="LINK_ARCHITETTURA" type="text" placeholder="https://"></div>
+      </div>
+    </div>
+
+    <!-- S8 -->
+    <div class="section" id="s7">
+      <div class="sec-eyebrow">SEZIONE 08 / 09</div>
+      <div class="sec-title">ESG & Impatto</div>
+      <div class="sec-desc">Obiettivi ambientali, sociali e di governance.</div>
+      <div class="grid">
+        <div class="field full"><label>OBIETTIVI SDG</label><input id="OBIETTIVI_ESG" type="text" placeholder="Es: SDG 3 (Salute), SDG 9 (Innovazione)"></div>
+        <div class="field full"><label>IMPATTO AMBIENTALE</label><textarea id="IMPATTO_AMBIENTALE"></textarea></div>
+        <div class="field full"><label>IMPATTO SOCIALE</label><textarea id="IMPATTO_SOCIALE"></textarea></div>
+        <div class="field"><label>DIVERSITY TEAM</label><input id="DIVERSITY_TEAM" type="text"></div>
+        <div class="field full"><label>METRICHE DI IMPATTO ESG</label><textarea id="ESG_METRICHE"></textarea></div>
+        <div class="field full"><label>PIANO DI MIGLIORAMENTO ESG</label><textarea id="ESG_PIANO_MIGLIORAMENTO"></textarea></div>
+        <div class="field"><label>CANALE SCOPERTA BANDO</label><input id="REFERRAL_BANDO" type="text"></div>
+      </div>
+    </div>
+
+    <!-- S9 -->
+    <div class="section" id="s8">
+      <div class="sec-eyebrow">SEZIONE 09 / 09</div>
+      <div class="sec-title">Asset & Link</div>
+      <div class="sec-desc">Link a tutti i file e asset della startup su Drive.</div>
+      <div class="grid">
+        <div class="field"><label>PITCH DECK</label><input id="LINK_PITCH_DECK" type="text" placeholder="https://"></div>
+        <div class="field"><label>ONE PAGER</label><input id="LINK_ONE_PAGER" type="text" placeholder="https://"></div>
+        <div class="field"><label>VIDEO DEMO</label><input id="LINK_VIDEO_DEMO" type="text" placeholder="https://"></div>
+        <div class="field"><label>VIDEO PITCH 60S</label><input id="LINK_VIDEO_PITCH_60S" type="text" placeholder="https://"></div>
+        <div class="field"><label>VIDEO PITCH 3MIN</label><input id="LINK_VIDEO_PITCH_3MIN" type="text" placeholder="https://"></div>
+        <div class="field"><label>LOGO DRIVE</label><input id="LINK_LOGO_DRIVE" type="text" placeholder="https://"></div>
+        <div class="field"><label>TRACTION ROOM</label><input id="LINK_TRACTION_ROOM" type="text" placeholder="https://"></div>
+        <div class="field"><label>CAP TABLE</label><input id="LINK_CAP_TABLE" type="text" placeholder="https://"></div>
+        <div class="field"><label>FINANCIAL PROJECTIONS</label><input id="LINK_FINANCIAL_PROJECTIONS" type="text" placeholder="https://"></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div class="bottom-nav" id="bottomNav">
+  <button class="btn" id="btnBack" onclick="goTo(cur-1)" disabled>← indietro</button>
+  <span class="nav-center" id="navCenter">01 / 09</span>
+  <button class="btn btn-primary" id="btnNext" onclick="goTo(cur+1)">avanti →</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIGURAZIONE ──
+// Sostituisci con l'URL del tuo Apps Script deployment
+const WEB_APP_URL = 'INCOLLA_QUI_URL_APPS_SCRIPT';
+
+const TOTAL = 9;
+let cur = 0;
+
+const FIELDS = [
+  'NOME_STARTUP','NOME_COMMERCIALE','FORMA_SOCIETARIA','PAYOFF','DATA_AGGIORNAMENTO','DATA_COSTITUZIONE','SEDE_LEGALE','COMUNE_PROVINCIA','PARTITA_IVA','CODICE_FISCALE_STARTUP','PEC_AZIENDALE','IBAN_AZIENDALE','INTESTATARIO_CONTO','SITO_WEB','LINKEDIN_COMPANY','ISCRIZIONE_SEZIONE_SPECIALE','SCADENZA_REGIME_STARTUP','SPIN_OFF_DI',
+  'CEO_NOME_COGNOME','CEO_EMAIL','CEO_TELEFONO','CEO_LINKEDIN','CEO_ESPERIENZE_BREVI','COFOUNDER_2_NOME','COFOUNDER_2_RUOLO','COFOUNDER_2_ESPERIENZE','COFOUNDER_3_NOME','COFOUNDER_3_RUOLO','COFOUNDER_3_ESPERIENZE','NUM_FOUNDERS','NUM_DIPENDENTI',
+  'SETTORE_PRIMARIO','SETTORE_SECONDARIO','LIVELLO_SVILUPPO','TRL_LIVELLO','MODELLO_BUSINESS','TARGET_CLIENTE','REVENUE_MODEL_BREVE',
+  'TAGLINE_50','TAGLINE_150','PROBLEMA_500','PROBLEMA_1000','PROBLEMA_2500','SOLUZIONE_500','SOLUZIONE_1000','SOLUZIONE_2500','INNOVAZIONE_1000','INNOVAZIONE_2000','USO_FONDI_500','USO_FONDI_1500','USO_FONDI_PERCENTUALI','GO_TO_INVESTOR','BP_GTM','BP_MVA','BP_ROADMAP','GTM_CANALI','GTM_STRATEGIA','GTM_PARTNERSHIP','GTM_COSTI','GTM_FASI','GTM_METRICHE','GTI_MILESTONES','GTI_PROFILO_INVESTITORE','GTI_COSA_OFFRIAMO','GTI_EXIT',
+  'TAM','SAM','SOM','MERCATO_TARGET_DESC','COMPETITOR_PRINCIPALI','VANTAGGIO_COMPETITIVO','DESCRIZIONE_STATO_ARTE','INNOVAZIONE_PERCHE_ADESSO',
+  'ANNO_RIF_1','ANNO_RIF_2','ANNO_RIF_3','FATTURATO_ANNO_1','FATTURATO_ANNO_2','FATTURATO_ANNO_3','VALORIZZAZIONE_ATTUALE','METODO_VALORIZZAZIONE','ROUND_ATTUALE','OBIETTIVO_RACCOLTA','MRR','ARR','CAC','LTV','CHURN_RATE','DAU_MAU','NPS','INVESTITORI_PRINCIPALI','ALTRI_DATI_TRACTION','CS1_CLIENTE','CS1_SETTORE','CS1_SFIDA','CS1_SOLUZIONE','CS1_RISULTATI','CS1_CITAZIONE','CS2_CLIENTE','CS2_SETTORE','CS2_SFIDA','CS2_SOLUZIONE','CS2_RISULTATI','CS2_CITAZIONE','PREMI_RICONOSCIMENTI','PARTNER_PRINCIPALI',
+  'TECH_STACK','ARCHITETTURA_CLOUD','LOCALIZZAZIONE_SERVER','PROTOCOLLI_CRITTOGRAFIA','IP_BREVETTI','IP_MARCHI','IP_ALTRE_TUTELE','IP_NDA_POLICY','IP_ASSIGNMENT_DESC','IP_STRATEGIA_FUTURA','TRL_DESCRIZIONE_STATO','TRL_EVIDENZE','TRL_ATTIVITA_COMPLETATE','TRL_PROSSIMI_STEP','TRL_POC_DISPONIBILE','TRL_RISULTATI_TEST','LINK_ARCHITETTURA',
+  'OBIETTIVI_ESG','IMPATTO_AMBIENTALE','IMPATTO_SOCIALE','DIVERSITY_TEAM','ESG_METRICHE','ESG_PIANO_MIGLIORAMENTO','REFERRAL_BANDO',
+  'LINK_PITCH_DECK','LINK_ONE_PAGER','LINK_VIDEO_DEMO','LINK_VIDEO_PITCH_60S','LINK_VIDEO_PITCH_3MIN','LINK_LOGO_DRIVE','LINK_TRACTION_ROOM','LINK_CAP_TABLE','LINK_FINANCIAL_PROJECTIONS'
+];
+
+function getData(){
+  const d={};
+  FIELDS.forEach(k=>{const el=document.getElementById(k);if(el&&el.value.trim())d[k]=el.value.trim();});
+  return d;
+}
+
+function updateProgress(){
+  const d=getData();
+  const filled=Object.keys(d).length;
+  const pct=Math.round((filled/FIELDS.length)*100);
+  document.getElementById('pFill').style.width=pct+'%';
+  document.getElementById('pPct').textContent=pct+'%';
+}
+
+FIELDS.forEach(k=>{
+  const el=document.getElementById(k);
+  if(el)el.addEventListener('input',updateProgress);
+});
+
+function goTo(i){
+  if(i<0||i>=TOTAL)return;
+  const hasSomeData=()=>{
+    const sec=document.getElementById('s'+cur);
+    return sec&&sec.querySelector('input,textarea,select')&&
+      [...sec.querySelectorAll('input,textarea,select')].some(el=>el.value.trim());
+  };
+  document.getElementById('s'+cur).classList.remove('active');
+  document.getElementById('nav-'+cur).classList.remove('active');
+  if(hasSomeData()){
+    document.getElementById('nav-'+cur).classList.add('done');
+    document.getElementById('nav-'+cur).querySelector('.dot').style.background='var(--accent)';
+  }
+  cur=i;
+  document.getElementById('s'+cur).classList.add('active');
+  const nav=document.getElementById('nav-'+cur);
+  nav.classList.add('active');
+  nav.classList.remove('done');
+  nav.querySelector('.dot').style.background='';
+  document.getElementById('navCenter').textContent=String(cur+1).padStart(2,'0')+' / 09';
+  document.getElementById('btnBack').disabled=cur===0;
+  document.getElementById('main').scrollTop=0;
+  if(cur===TOTAL-1){
+    document.getElementById('btnNext').textContent='genera su drive ↗';
+    document.getElementById('btnNext').onclick=inviaADrive;
+  } else {
+    document.getElementById('btnNext').textContent='avanti →';
+    document.getElementById('btnNext').onclick=()=>goTo(cur+1);
+  }
+  if(window.innerWidth<=768) closeSidebar();
+}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('overlay');
+  if(sb.classList.contains('open')){closeSidebar();}
+  else{sb.classList.add('open');ov.classList.add('open');}
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function showToast(msg,dur=3000){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+function exportJSON(){
+  const d=getData();
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='pholia_'+(d.NOME_STARTUP||'startup').replace(/\s+/g,'_')+'_profile.json';
+  a.click();
+  showToast('JSON scaricato');
+}
+
+function inviaADrive(){
+  if(WEB_APP_URL==='INCOLLA_QUI_URL_APPS_SCRIPT'){
+    showToast('Configura prima WEB_APP_URL nello script',5000);
+    return;
+  }
+  const nome=document.getElementById('NOME_STARTUP').value.trim();
+  if(!nome){showToast('Inserisci almeno il nome della startup',4000);goTo(0);return;}
+  const btn=document.getElementById('btnNext');
+  btn.textContent='generazione in corso...';
+  btn.disabled=true;
+  fetch(WEB_APP_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(getData())
+  })
+  .then(r=>r.json())
+  .then(()=>{
+    showToast('Cartella '+nome+' creata su Drive!',5000);
+    btn.textContent='genera su drive ↗';
+    btn.disabled=false;
+  })
+  .catch(()=>{
+    showToast('Errore connessione — controlla WEB_APP_URL',5000);
+    btn.textContent='riprova';
+    btn.disabled=false;
+  });
+}
+</script>
+</body>
+</html>
