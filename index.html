@@ -480,7 +480,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 <div class="bottom-nav" id="bottomNav">
   <button class="btn" id="btnBack" onclick="goTo(cur-1)" disabled>← indietro</button>
   <span class="nav-center" id="navCenter">01 / 09</span>
-  <button class="btn btn-primary" id="btnNext" onclick="goTo(cur+1)">avanti →</button>
+  <button class="btn btn-primary" id="btnNext" onclick="goTo(cur+1)">genera su drive ↗</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -488,7 +488,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 <script>
 // ── CONFIGURAZIONE ──
 // Sostituisci con l'URL del tuo Apps Script deployment
-const WEB_APP_URL = 'INCOLLA_QUI_URL_APPS_SCRIPT';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzw1vAP4C7tPy_GKBfvMGscxqpKYiaZq5JbiDyNfrzefqDuVCliNLdLO0VIOp4tqEXv/exec';
 
 const TOTAL = 9;
 let cur = 0;
@@ -546,13 +546,9 @@ function goTo(i){
   document.getElementById('navCenter').textContent=String(cur+1).padStart(2,'0')+' / 09';
   document.getElementById('btnBack').disabled=cur===0;
   document.getElementById('main').scrollTop=0;
-  if(cur===TOTAL-1){
-    document.getElementById('btnNext').textContent='genera su drive ↗';
-    document.getElementById('btnNext').onclick=inviaADrive;
-  } else {
-    document.getElementById('btnNext').textContent='avanti →';
-    document.getElementById('btnNext').onclick=()=>goTo(cur+1);
-  }
+  const btnNext = document.getElementById('btnNext');
+  btnNext.textContent='genera su drive ↗';
+  btnNext.onclick=inviaADrive;
   if(window.innerWidth<=768) closeSidebar();
 }
 
