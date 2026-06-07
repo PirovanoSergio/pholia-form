@@ -149,10 +149,12 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 }
 .char-block textarea{
   border:none!important;border-radius:0!important;
-  background:transparent!important;padding:8px 12px;
-  font-size:12px!important;min-height:56px;width:100%
+  background:#111!important;color:#ffffff!important;
+  padding:8px 12px;font-size:12px!important;min-height:56px;width:100%
 }
 .char-block textarea:focus{outline:none!important;border:none!important}
+.char-block:focus-within{border-color:var(--accent)!important}
+.char-block:focus-within .char-block-hdr{color:var(--accent)}
 
 /* ── BOTTOM NAV ── */
 .bottom-nav{
@@ -257,6 +259,17 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
   .main{padding:20px 16px 80px}
   .sec-title{font-size:16px}
 }
+
+/* ── MODALE LOADING ── */
+.modal-loading-icon{
+  width:40px;height:40px;border:2px solid var(--border2);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin .8s linear infinite;margin:0 auto 20px
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.modal-loading-msg{font-size:13px;color:var(--muted2);line-height:1.7;text-align:center;font-family:'DM Sans',sans-serif}
+.modal-loading-msg b{color:var(--text);font-weight:500}
+.modal-loading-sub{font-size:10px;color:var(--muted);margin-top:10px;text-align:center;font-family:'DM Mono',monospace;letter-spacing:.05em}
 </style>
 </head>
 <body>
@@ -537,6 +550,16 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
   <button class="btn btn-primary" id="btnNext" onclick="apriConferma()">genera su drive ↗</button>
 </div>
 
+
+<!-- ── MODALE LOADING ── -->
+<div class="modal-overlay" id="modalLoading">
+  <div class="modal" style="text-align:center;max-width:380px">
+    <div class="modal-loading-icon"></div>
+    <div class="modal-loading-msg">Generazione in corso per <b id="loadNome">—</b></div>
+    <div class="modal-loading-sub">La cartella Drive viene creata adesso.<br>Può richiedere fino a 30 secondi.</div>
+  </div>
+</div>
+
 <!-- ── MODALE CONFERMA ── -->
 <div class="modal-overlay" id="modalConferma">
   <div class="modal">
@@ -626,6 +649,17 @@ function updateProgress(){
   const pct = Math.round((filled/FIELDS.length)*100);
   document.getElementById('pFill').style.width=pct+'%';
   document.getElementById('pPct').textContent=pct+'%';
+  // colora il dot della sezione attiva in tempo reale
+  const navActive = document.getElementById('nav-'+cur);
+  const sec = document.getElementById('s'+cur);
+  const hasSome = sec && [...sec.querySelectorAll('input,textarea,select')].some(el=>el.value.trim());
+  if(hasSome){
+    navActive.classList.add('done');
+    navActive.querySelector('.dot').style.background='var(--accent)';
+  } else {
+    navActive.classList.remove('done');
+    navActive.querySelector('.dot').style.background='';
+  }
 }
 
 FIELDS.forEach(k=>{
@@ -718,6 +752,9 @@ function inviaADrive(){
   const btn=document.getElementById('btnNext');
   btn.textContent='generazione in corso...';
   btn.disabled=true;
+  // mostra subito il feedback di caricamento
+  document.getElementById('loadNome').textContent=nome;
+  document.getElementById('modalLoading').classList.add('open');
 
   fetch(WEB_APP_URL,{
     method:'POST',
@@ -734,14 +771,14 @@ function inviaADrive(){
     } catch(e){
       console.warn('[Pholià] JSON parse fallito, risposta grezza:', raw);
     }
+    chiudiModale('modalLoading');
     mostraSuccesso(nome, folderUrl);
     btn.textContent='genera su drive ↗';
     btn.disabled=false;
   })
   .catch(err=>{
     console.error('[Pholià] fetch error:', err);
-    // Apps Script spesso completa il lavoro ma restituisce un errore CORS/redirect
-    // mostriamo comunque il successo senza URL
+    chiudiModale('modalLoading');
     mostraSuccesso(nome, null);
     btn.textContent='genera su drive ↗';
     btn.disabled=false;
